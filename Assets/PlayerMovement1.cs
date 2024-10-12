@@ -30,8 +30,8 @@ public class PlayerMovement1 : MonoBehaviour
     readonly int CROUCHFORWARD = Animator.StringToHash("Crouch_Forward");
     readonly int CROUCHLEFT = Animator.StringToHash("Crouch_Left");
     readonly int CROUCHRIGHT = Animator.StringToHash("Crouch_Right");
-    readonly int TURN_LEFT = Animator.StringToHash("Turn-90_L");
-    readonly int TURN_RIGHT = Animator.StringToHash("Turn-90_R");
+    readonly int TURN_LEFT = Animator.StringToHash("TurnLeft");
+    readonly int TURN_RIGHT = Animator.StringToHash("TurnRight");
 
     void Start()
     {
@@ -138,51 +138,61 @@ public class PlayerMovement1 : MonoBehaviour
             return;
         }
 
-        // Determine if running
         bool isRunning = Input.GetKey(KeyCode.LeftShift);
         bool isMovingForward = movement.y > 0; // W pressed
         bool isMovingRight = movement.x > 0; // D pressed
         bool isMovingLeft = movement.x < 0; // A pressed
 
-        // Handle forward movement with diagonal support
-        if (isMovingForward)
+        // Prioritize diagonal movement with W + A or W + D
+        if (isMovingForward && isMovingRight)
         {
-            if (isMovingRight)
-                ChangeAnimation(isRunning ? RUNRIGHT : WALKFORWARD);
-            else if (isMovingLeft)
-                ChangeAnimation(isRunning ? RUNLEFT : WALKFORWARD);
+            ChangeAnimation(isRunning ? RUNRIGHT : WALKRIGHT); // Running or walking diagonally to the right
+        }
+        else if (isMovingForward && isMovingLeft)
+        {
+            ChangeAnimation(isRunning ? RUNLEFT : WALKLEFT); // Running or walking diagonally to the left
+        }
+        else if (isMovingForward)
+        {
+            // Forward movement without diagonal
+            ChangeAnimation(isRunning ? RUNFORWARD : WALKFORWARD); // Just W pressed
+        }
+        else if (isMovingLeft && !isMovingForward && !isTurning)
+        {
+            // Turning left (A pressed without forward movement)
+            if (Input.GetKey(KeyCode.A))
+            {
+                isTurning = true;
+                ChangeAnimation(TURN_LEFT); // Play turn left animation
+                StartCoroutine(ResetTurningAnimation(TURN_LEFT));
+            }
             else
-                ChangeAnimation(isRunning ? RUNFORWARD : WALKFORWARD); // Just W pressed
+            {
+                ChangeAnimation(WALKLEFT); // Walking left
+            }
         }
-        else if (isMovingRight)
+        else if (isMovingRight && !isMovingForward && !isTurning)
         {
-            ChangeAnimation(isRunning ? RUNRIGHT : WALKRIGHT); // Only D pressed
-        }
-        else if (isMovingLeft)
-        {
-            ChangeAnimation(isRunning ? RUNLEFT : WALKLEFT); // Only A pressed
+            // Turning right (D pressed without forward movement)
+            if (Input.GetKey(KeyCode.D))
+            {
+                isTurning = true;
+                ChangeAnimation(TURN_RIGHT); // Play turn right animation
+                StartCoroutine(ResetTurningAnimation(TURN_RIGHT));
+            }
+            else
+            {
+                ChangeAnimation(WALKRIGHT); // Walking right
+            }
         }
         else
         {
-            // Handle turning animations
-            if (Input.GetKeyDown(KeyCode.A) && !isTurning) // Turn left
-            {
-                isTurning = true; // Set turning flag
-                ChangeAnimation(TURN_LEFT); // Play turning animation
-                StartCoroutine(ResetTurningAnimation(TURN_LEFT)); // Reset flag after animation
-            }
-            else if (Input.GetKeyDown(KeyCode.D) && !isTurning) // Turn right
-            {
-                isTurning = true; // Set turning flag
-                ChangeAnimation(TURN_RIGHT); // Play turning animation
-                StartCoroutine(ResetTurningAnimation(TURN_RIGHT)); // Reset flag after animation
-            }
-            else
-            {
-                CheckIdle(); // No movement
-            }
+            // No movement, check for idle animations
+            CheckIdle();
         }
     }
+
+
 
     private IEnumerator ResetTurningAnimation(int animationHash)
     {
