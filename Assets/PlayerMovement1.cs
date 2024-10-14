@@ -17,6 +17,7 @@ public class PlayerMovement1 : MonoBehaviour
     private int currentIdle = 0;
     private bool grounded = false;
     private bool isTurning = false; // Flag for turning animation
+    private bool isTurningBackwards = false; // Flag for handling backward turn animation
 
     // Animator state hashes
     readonly int IDLE = Animator.StringToHash("idle1");
@@ -140,8 +141,16 @@ public class PlayerMovement1 : MonoBehaviour
 
         bool isRunning = Input.GetKey(KeyCode.LeftShift);
         bool isMovingForward = movement.y > 0; // W pressed
+        bool isMovingBackward = movement.y < 0; // S pressed
         bool isMovingRight = movement.x > 0; // D pressed
         bool isMovingLeft = movement.x < 0; // A pressed
+
+        // Handle backward movement with turning animation
+        if (isMovingBackward && !isTurningBackwards)
+        {
+            StartCoroutine(PlayTurnAnimationTwice());
+            return; // Exit this function while turning backward
+        }
 
         // Prioritize diagonal movement with W + A or W + D
         if (isMovingForward && isMovingRight)
@@ -192,14 +201,45 @@ public class PlayerMovement1 : MonoBehaviour
         }
     }
 
+    private IEnumerator PlayTurnAnimationTwice()
+    {
+        isTurningBackwards = true; // Lock backward movement until turn completes
 
+        // Play turn animation to the right
+        ChangeAnimation(TURN_RIGHT);
+        yield return new WaitForSeconds(animator.runtimeAnimatorController.animationClips[TURN_RIGHT].length);
+
+        // Play turn animation to the right again (total of 180 degrees turn)
+        ChangeAnimation(TURN_RIGHT);
+        yield return new WaitForSeconds(animator.runtimeAnimatorController.animationClips[TURN_RIGHT].length);
+
+        isTurningBackwards = false; // Unlock backward movement after turn
+    }
 
     private IEnumerator ResetTurningAnimation(int animationHash)
     {
-        // Wait for the animation to finish before resetting the turning flag
-        yield return new WaitForSeconds(animator.runtimeAnimatorController.animationClips[animationHash].length);
+        // Get the animation clip length using the animation name or hash
+        AnimationClip clip = GetAnimationClipByHash(animationHash);
+        if (clip != null)
+        {
+            yield return new WaitForSeconds(clip.length); // Wait for the animation to complete
+        }
         isTurning = false; // Reset turning flag
     }
+
+    // Helper function to retrieve animation clip by hash
+    private AnimationClip GetAnimationClipByHash(int hash)
+    {
+        foreach (var clip in animator.runtimeAnimatorController.animationClips)
+        {
+            if (Animator.StringToHash(clip.name) == hash)
+            {
+                return clip;
+            }
+        }
+        return null; // Return null if the clip isn't found
+    }
+
 
     private void CheckIdle()
     {
