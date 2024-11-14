@@ -1,0 +1,144 @@
+fileFormatVersion: 2
+guid: 85386b9bf42532044b531a564dc1ec07
+timeCreated: 1531023118
+licenseType: Store
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: Frame
+    100004: Frame.001
+    100006: Lobby Tabel 3 Screens
+    100008: Lobby Tabel 4 Screens
+    100010: Screen 01
+    100012: Screen 01.001
+    100014: Screen 02
+    100016: Screen 02.001
+    100018: Screen 03
+    100020: Screen 03.001
+    100022: Screen 04
+    100024: Tabel Top
+    100026: Tabel Top.001
+    400000: //RootNode
+    400002: Frame
+    400004: Frame.001
+    400006: Lobby Tabel 3 Screens
+    400008: Lobby Tabel 4 Screens
+    400010: Screen 01
+    400012: Screen 01.001
+    400014: Screen 02
+    400016: Screen 02.001
+    400018: Screen 03
+    400020: Screen 03.001
+    400022: Screen 04
+    400024: Tabel Top
+    400026: Tabel Top.001
+    2300000: Frame
+    2300002: Frame.001
+    2300004: Lobby Tabel 3 Screens
+    2300006: Lobby Tabel 4 Screens
+    2300008: Screen 01
+    2300010: Screen 01.001
+    2300012: Screen 02
+    2300014: Screen 02.001
+    2300016: Screen 03
+    2300018: Screen 03.001
+    2300020: Screen 04
+    2300022: Tabel Top
+    2300024: Tabel Top.001
+    3300000: Frame
+    3300002: Frame.001
+    3300004: Lobby Tabel 3 Screens
+    3300006: Lobby Tabel 4 Screens
+    3300008: Screen 01
+    3300010: Screen 01.001
+    3300012: Screen 02
+    3300014: Screen 02.001
+    3300016: Screen 03
+    3300018: Screen 03.001
+    3300020: Screen 04
+    3300022: Tabel Top
+    3300024: Tabel Top.001
+    4300000: Lobby Tabel 4 Screens
+    4300002: Tabel Top.001
+    4300004: Frame.001
+    4300006: Screen 01.001
+    4300008: Screen 04
+    4300010: Screen 02.001
+    4300012: Screen 03.001
+    4300014: Lobby Tabel 3 Screens
+    4300016: Tabel Top
+    4300018: Frame
+    4300020: Screen 01
+    4300022: Screen 03
+    4300024: Screen 02
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
