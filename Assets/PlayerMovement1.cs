@@ -21,7 +21,7 @@ public class PlayerMovement1 : MonoBehaviour
 
     // Animator state hashes
     readonly int IDLE = Animator.StringToHash("idle1");
-    readonly int WALKFORWARD = Animator.StringToHash("Walk_Foward");
+    readonly int WALKFORWARD = Animator.StringToHash("Walk_Forward");
     readonly int WALKRIGHT = Animator.StringToHash("Walk_Right");
     readonly int WALKLEFT = Animator.StringToHash("Walk_Left");
     readonly int RUNFORWARD = Animator.StringToHash("Run_Forward");
@@ -57,6 +57,9 @@ public class PlayerMovement1 : MonoBehaviour
     {
         // Getting WASD movement
         movement = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+
+        // Don't allow other actions while turning
+        if (isTurning) return;
 
         // Check for jump
         if (grounded && Input.GetKeyDown(KeyCode.Space))
@@ -121,13 +124,26 @@ public class PlayerMovement1 : MonoBehaviour
             if (currentAnimationHash != animationHash)
             {
                 currentAnimationHash = animationHash;
-                animator.CrossFade(animationHash, crossfade);
+
+                // Ensure the layer index is valid (e.g., checking for the base layer index)
+                int layerIndex = animator.GetLayerIndex("Base Layer"); // or another layer name if needed
+                if (layerIndex != -1)
+                {
+                    animator.CrossFade(animationHash, crossfade, layerIndex);
+                }
+                else
+                {
+                    Debug.LogWarning("Invalid layer index, using default layer.");
+                    animator.CrossFade(animationHash, crossfade);
+                }
             }
         }
     }
 
     private void CheckAnimation()
     {
+        if (isTurning) return; // Skip animation checks if turning
+
         if (currentAnimationHash == Animator.StringToHash("Land_stop") ||
             currentAnimationHash == Animator.StringToHash("InPlace") ||
             currentAnimationHash == Animator.StringToHash("Bite"))
@@ -152,47 +168,27 @@ public class PlayerMovement1 : MonoBehaviour
             return; // Exit this function while turning backward
         }
 
-        // Prioritize diagonal movement with W + A or W + D
-        if (isMovingForward && isMovingRight)
+        // Running or walking
+        if (isMovingForward)
         {
-            ChangeAnimation(isRunning ? RUNRIGHT : WALKRIGHT); // Running or walking diagonally to the right
-        }
-        else if (isMovingForward && isMovingLeft)
-        {
-            ChangeAnimation(isRunning ? RUNLEFT : WALKLEFT); // Running or walking diagonally to the left
-        }
-        else if (isMovingForward)
-        {
-            // Forward movement without diagonal
-            ChangeAnimation(isRunning ? RUNFORWARD : WALKFORWARD); // Just W pressed
-        }
-        else if (isMovingLeft && !isMovingForward && !isTurning)
-        {
-            // Turning left (A pressed without forward movement)
-            if (Input.GetKey(KeyCode.A))
-            {
-                isTurning = true;
-                ChangeAnimation(TURN_LEFT); // Play turn left animation
-                StartCoroutine(ResetTurningAnimation(TURN_LEFT));
-            }
+            if (isRunning)
+                ChangeAnimation(RUNFORWARD); // Loop running animation
             else
-            {
-                ChangeAnimation(WALKLEFT); // Walking left
-            }
+                ChangeAnimation(WALKFORWARD); // Loop walking animation
         }
-        else if (isMovingRight && !isMovingForward && !isTurning)
+        else if (isMovingLeft)
         {
-            // Turning right (D pressed without forward movement)
-            if (Input.GetKey(KeyCode.D))
-            {
-                isTurning = true;
-                ChangeAnimation(TURN_RIGHT); // Play turn right animation
-                StartCoroutine(ResetTurningAnimation(TURN_RIGHT));
-            }
+            if (isRunning)
+                ChangeAnimation(RUNLEFT); // Loop running left animation
             else
-            {
-                ChangeAnimation(WALKRIGHT); // Walking right
-            }
+                ChangeAnimation(WALKLEFT); // Loop walking left animation
+        }
+        else if (isMovingRight)
+        {
+            if (isRunning)
+                ChangeAnimation(RUNRIGHT); // Loop running right animation
+            else
+                ChangeAnimation(WALKRIGHT); // Loop walking right animation
         }
         else
         {
@@ -203,26 +199,34 @@ public class PlayerMovement1 : MonoBehaviour
 
     private IEnumerator PlayTurnAnimationTwice()
     {
+        isTurning = true; // Set turning flag
         isTurningBackwards = true; // Lock backward movement until turn completes
 
         // Play turn animation to the right
         ChangeAnimation(TURN_RIGHT);
-        yield return new WaitForSeconds(animator.runtimeAnimatorController.animationClips[TURN_RIGHT].length);
+        AnimationClip turnRightClip = GetAnimationClipByHash(TURN_RIGHT);
+        if (turnRightClip != null)
+        {
+            yield return new WaitForSeconds(turnRightClip.length);
+        }
 
         // Play turn animation to the right again (total of 180 degrees turn)
         ChangeAnimation(TURN_RIGHT);
-        yield return new WaitForSeconds(animator.runtimeAnimatorController.animationClips[TURN_RIGHT].length);
+        if (turnRightClip != null)
+        {
+            yield return new WaitForSeconds(turnRightClip.length);
+        }
 
-        isTurningBackwards = false; // Unlock backward movement after turn
+        isTurningBackwards = false; // Unlock backward movement
+        isTurning = false; // Reset turning flag
     }
 
     private IEnumerator ResetTurningAnimation(int animationHash)
     {
-        // Get the animation clip length using the animation name or hash
         AnimationClip clip = GetAnimationClipByHash(animationHash);
         if (clip != null)
         {
-            yield return new WaitForSeconds(clip.length); // Wait for the animation to complete
+            yield return new WaitForSeconds(clip.length);
         }
         isTurning = false; // Reset turning flag
     }
@@ -239,7 +243,6 @@ public class PlayerMovement1 : MonoBehaviour
         }
         return null; // Return null if the clip isn't found
     }
-
 
     private void CheckIdle()
     {
@@ -263,13 +266,33 @@ public class PlayerMovement1 : MonoBehaviour
         }
     }
 
-    private void FixedUpdate()
+    void FixedUpdate()
     {
+        if (isTurning) return; // Skip movement updates if turning
+
+        // Check if the player is sprinting
+        float currentSpeed = movementSpeed;
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            currentSpeed *= sprintMultiplier; // Increase speed if sprinting
+        }
+
         // Get velocity direction based on input
-        Vector3 velocity = movementSpeed * (movement.x * transform.right + movement.y * transform.forward);
+        Vector3 velocity = currentSpeed * (movement.x * transform.right + movement.y * transform.forward);
         // Apply velocity while maintaining the current y velocity for jumping
         rb.velocity = new Vector3(velocity.x, rb.velocity.y, velocity.z);
-        // Update grounded state
-        grounded = Physics.CheckBox(ground.transform.position + ground.center, 0.5f * ground.size, ground.transform.rotation, groundMask);
+    }
+
+    // Check if grounded
+    private void OnCollisionStay(Collision collision)
+    {
+        if ((groundMask.value & (1 << collision.gameObject.layer)) > 0)
+            grounded = true;
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        if ((groundMask.value & (1 << collision.gameObject.layer)) > 0)
+            grounded = false;
     }
 }

@@ -1,56 +1,54 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class opencloseDoor1: MonoBehaviour {
+public class OpenCloseDoor1 : MonoBehaviour
+{
+    public Animator openAndClose;
+    public bool open;
+    public Transform player;
+    public float interactDistance = 15f; // Adjust this as needed
 
-	public Animator openandclose1;
-	public bool open;
-	public Transform Player;
+    void Start()
+    {
+        open = false;
+    }
 
-	void Start (){
-		open = false;
-	}
+    void Update()
+    {
+        if (player)
+        {
+            float dist = Vector3.Distance(player.position, transform.position);
+            Debug.Log("Distance to door 2: " + dist); // Debugging distance
+            if (dist < interactDistance)
+            {
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    if (!open)
+                    {
+                        StartCoroutine(Opening());
+                    }
+                    else
+                    {
+                        StartCoroutine(Closing());
+                    }
+                }
+            }
+        }
+    }
 
-	void OnMouseOver (){
-		{
-			if (Player) {
-				float dist = Vector3.Distance (Player.position, transform.position);
-				if (dist < 15) {
-					if (open == false) {
-						if (Input.GetMouseButtonDown (0)) {
-							StartCoroutine (opening ());
-						}
-					} else {
-						if (open == true) {
-							if (Input.GetMouseButtonDown (0)) {
-								StartCoroutine (closing ());
-							}
-						}
+    IEnumerator Opening()
+    {
+        Debug.Log("You are opening door 2");
+        openAndClose.Play("Opening1"); // Directly play the "Opening" animation
+        open = true;
+        yield return new WaitForSeconds(0.5f); // Adjust wait time as needed
+    }
 
-					}
-
-				}
-			}
-
-		}
-
-	}
-
-	IEnumerator opening(){
-		print ("you are opening the door");
-		openandclose1.Play ("Opening 1");
-		open = true;
-		yield return new WaitForSeconds (.5f);
-	}
-
-	IEnumerator closing(){
-		print ("you are closing the door");
-		openandclose1.Play ("Closing 1");
-		open = false;
-		yield return new WaitForSeconds (.5f);
-	}
-
-
+    IEnumerator Closing()
+    {
+        Debug.Log("You are closing door 2");
+        openAndClose.Play("Closing1"); // Directly play the "Closing" animation
+        open = false;
+        yield return new WaitForSeconds(0.5f); // Adjust wait time as needed
+    }
 }
-
